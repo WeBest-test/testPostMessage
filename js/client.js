@@ -1,24 +1,7 @@
 (function(window) {
-  function ready(cb) {
-    if (document.readyState != 'loading'){
-      cb();
-    } else {
-      document.addEventListener('DOMContentLoaded', cb);
-    }
-  }
-  // var sfn = function () {
-  //   var s = document.createElement('script');
-  //   s.src = './js/client.js';
-  //   s.async = true;
-  //   s.defer = true;
-  //   document.body.appendChild(s);
-  // }
-
-
 
   //初始化set get 向远程Storage发送数据的帮助方法
   var STool = function(huburl){
-    window.ready = this.ready = ready;
     var that = this;
     //初始化iframe
     this.i = document.createElement('iframe');
@@ -87,10 +70,13 @@
 
   window.STool = STool;
 
+
+
+
+  //test functions
   var fn = function () {
     var s = new STool();
     s.onConnect(function () {
-      debugger
       s.set('aaa',{"liugehuan":"aaa"},function (ggg) {
         console.log(ggg);
         console.log(typeof ggg);
@@ -103,5 +89,14 @@
   }
 
 
-  ready(fn);
+  function ready(cb) {
+    if (document.readyState != 'loading'){
+      cb();
+    } else {
+      document.addEventListener('DOMContentLoaded', cb);
+    }
+  }
+
+
+  //ready(fn);
 })(window);
