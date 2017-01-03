@@ -23,13 +23,31 @@
 
   //初始化set get 向远程Storage发送数据的帮助方法
   var STool = {};
-  STool.set = function (key,value,iframe) {
+  var setCallbacks = {};
+  var getCallbacks = {};
+  STool.set = function (key,value,cb) {
     var sentObj = {
+      //operation : set
+      "o":"s" ,
       "k":key,
       "v":value
     }
     var sentStr = JSON.stringify(sentObj);
     sendMessage(sentStr);
+    console.log('client sent',sentStr);
+    if(cb) setCallbacks[key] = cb;
+  }
+
+  STool.get = function (key,value,cb) {
+    var sentObj = {
+      //operation : get
+      "o":"g",
+      "k":key,
+      "v":value
+    }
+    var sentStr = JSON.stringify(sentObj);
+    sendMessage(sentStr);
+    if(cb) getCallbacks[key] = cb;
   }
 
   function sendMessage(msg,iframe){
@@ -37,14 +55,34 @@
     var ifrWindow = iframe.contentWindow || iframe;
     ifrWindow.postMessage( (msg || 'hello'),'*')
   }
-  
+
   var fn = function () {
     document.body.appendChild(i);
     i.onload = function () {
       //sendMessage(s);
-      STool.set('aaa','{"kkk":"ggg"}')
+      debugger
+      STool.set('aaa',{"liugehuan":"aaa"},function (ggg) {
+        console.log(ggg);
+        console.log(typeof ggg);
+      })
     }
 
   }
+
+  function receiveMessage(event) {
+    console.log(event)
+    console.log('client recieved',event.data)
+    var obj = JSON.parse(event.data || '{}');
+    if(obj.s && obj.s == 'ok'){
+      if(obj.o == 'g'){
+        getCallbacks[obj.k](obj.r);
+      }else if(obj.o == 's'){
+        console.log(setCallbacks)
+        setCallbacks[obj.k](obj.r);
+      }
+    }
+  }
+
+  window.addEventListener("message", receiveMessage, false);
   ready(fn);
 })(window);
