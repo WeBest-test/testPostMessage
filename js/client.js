@@ -38,12 +38,11 @@
     if(cb) setCallbacks[key] = cb;
   }
 
-  STool.get = function (key,value,cb) {
+  STool.get = function (key,cb) {
     var sentObj = {
       //operation : get
       "o":"g",
-      "k":key,
-      "v":value
+      "k":key
     }
     var sentStr = JSON.stringify(sentObj);
     sendMessage(sentStr);
@@ -64,6 +63,9 @@
       STool.set('aaa',{"liugehuan":"aaa"},function (ggg) {
         console.log(ggg);
         console.log(typeof ggg);
+        STool.get('aaa',function (res) {
+          console.log(res)
+        })
       })
     }
 
@@ -76,9 +78,11 @@
     if(obj.s && obj.s == 'ok'){
       if(obj.o == 'g'){
         getCallbacks[obj.k](obj.r);
+        delete getCallbacks[obj.k]
       }else if(obj.o == 's'){
         console.log(setCallbacks)
         setCallbacks[obj.k](obj.r);
+        delete setCallbacks[obj.k];
       }
     }
   }

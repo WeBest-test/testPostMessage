@@ -5,7 +5,7 @@
     return l.setItem(JSON.stringify(k),JSON.stringify(v));
   }
   tool.get = function (k) {
-    return l.getItem(JSON.stringify(k));
+    return JSON.parse(l.getItem(JSON.stringify(k)));
   }
   function receiveMessage(event) {
     console.log(event)
