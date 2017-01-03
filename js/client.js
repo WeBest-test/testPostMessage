@@ -1,5 +1,3 @@
-
-
 (function(window) {
   function ready(cb) {
     if (document.readyState != 'loading'){
@@ -16,16 +14,47 @@
   //   document.body.appendChild(s);
   // }
 
-  //初始化iframe
-  var i = document.createElement('iframe');
-  i.src = 'http://127.0.0.1:8080/hub.html';
-  i.style.display='none';
+
 
   //初始化set get 向远程Storage发送数据的帮助方法
-  var STool = {};
-  var setCallbacks = {};
-  var getCallbacks = {};
-  STool.set = function (key,value,cb) {
+  var STool = function(huburl){
+    window.ready = this.ready = ready;
+    var that = this;
+    //初始化iframe
+    this.i = document.createElement('iframe');
+    this.i.src =  huburl || 'http://127.0.0.1:8080/hub.html';
+    this.i.style.display='none';
+
+
+    this.sendMessage = function(msg,iframe){
+      iframe = iframe || that.i;
+      var ifrWindow = iframe.contentWindow || iframe;
+      ifrWindow.postMessage( (msg || 'hello'),'*')
+    }
+
+    this.setCallbacks = {};
+    this.getCallbacks = {};
+
+    this.receiveMessage = function(event) {
+      console.log(event)
+      console.log('client recieved',event.data)
+      var obj = JSON.parse(event.data || '{}');
+      if(obj.s && obj.s == 'ok'){
+        if(obj.o == 'g'){
+          that.getCallbacks[obj.k](obj.r);
+          delete that.getCallbacks[obj.k]
+        }else if(obj.o == 's'){
+          that.setCallbacks[obj.k](obj.r);
+          delete that.setCallbacks[obj.k];
+        }
+      }
+    }
+
+    window.addEventListener("message", that.receiveMessage, false);
+
+  };
+
+  STool.prototype.set = function (key,value,cb) {
     var sentObj = {
       //operation : set
       "o":"s" ,
@@ -33,60 +62,46 @@
       "v":value
     }
     var sentStr = JSON.stringify(sentObj);
-    sendMessage(sentStr);
+    this.sendMessage(sentStr);
     console.log('client sent',sentStr);
-    if(cb) setCallbacks[key] = cb;
+    if(cb) this.setCallbacks[key] = cb;
   }
 
-  STool.get = function (key,cb) {
+  STool.prototype.get = function (key,cb) {
     var sentObj = {
       //operation : get
       "o":"g",
       "k":key
     }
     var sentStr = JSON.stringify(sentObj);
-    sendMessage(sentStr);
-    if(cb) getCallbacks[key] = cb;
+    this.sendMessage(sentStr);
+    if(cb) this.getCallbacks[key] = cb;
   }
 
-  function sendMessage(msg,iframe){
-    iframe = iframe || i;
-    var ifrWindow = iframe.contentWindow || iframe;
-    ifrWindow.postMessage( (msg || 'hello'),'*')
+  STool.prototype.onConnect = function(cb){
+    document.body.appendChild(this.i);
+    this.i.onload = function () {
+      cb();
+    }
   }
+
+  window.STool = STool;
 
   var fn = function () {
-    document.body.appendChild(i);
-    i.onload = function () {
-      //sendMessage(s);
+    var s = new STool();
+    s.onConnect(function () {
       debugger
-      STool.set('aaa',{"liugehuan":"aaa"},function (ggg) {
+      s.set('aaa',{"liugehuan":"aaa"},function (ggg) {
         console.log(ggg);
         console.log(typeof ggg);
-        STool.get('aaa',function (res) {
+        s.get('aaa',function (res) {
           console.log(res)
         })
       })
-    }
+    })
 
   }
 
-  function receiveMessage(event) {
-    console.log(event)
-    console.log('client recieved',event.data)
-    var obj = JSON.parse(event.data || '{}');
-    if(obj.s && obj.s == 'ok'){
-      if(obj.o == 'g'){
-        getCallbacks[obj.k](obj.r);
-        delete getCallbacks[obj.k]
-      }else if(obj.o == 's'){
-        console.log(setCallbacks)
-        setCallbacks[obj.k](obj.r);
-        delete setCallbacks[obj.k];
-      }
-    }
-  }
 
-  window.addEventListener("message", receiveMessage, false);
   ready(fn);
 })(window);
