@@ -8,7 +8,6 @@
     return JSON.parse(l.getItem(JSON.stringify(k)));
   }
   function receiveMessage(event) {
-    console.log(event)
     console.log('hub recieved',event.data)
     var obj = JSON.parse(event.data || '{}');
     var res = {};

@@ -6,6 +6,30 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
   <script type="text/javascript" src="./js/client.js"></script>
+  <script type="text/javascript">
+
+  function ready(cb) {
+    if (document.readyState != 'loading'){
+      cb();
+    } else {
+      document.addEventListener('DOMContentLoaded', cb);
+    }
+  }
+
+
+  ready(fn);
+
+  function fn(){
+    s.onConnect(function () {
+
+      s.set('qqq','qqq',function (res) {
+        console.log('set qqq ok callback',res)
+      })
+
+    })
+  }
+
+  </script>
 </head>
 <body>
 
