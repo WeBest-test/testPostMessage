@@ -20,9 +20,10 @@
   ready(fn);
 
   function fn(){
-    s.onConnect(function () {
+    var s = window.s || new STool();
+    s.onConnect(function (client) {
 
-      s.set('qqq','qqq',function (res) {
+      client.set('qqq','qqq',function (res) {
         console.log('set qqq ok callback',res)
       })
 

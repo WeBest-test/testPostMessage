@@ -130,14 +130,14 @@
   STool.prototype.onConnect = function(cb){
     var client = this;
     if(client.connected){
-      if(cb) cb();
+      if(cb) cb(client); //can use client instance directly in callback.
     }else{
       if(cb) client.loadCallbacks.push(cb);
       document.body.appendChild(client.i);
       client.i.onload = function () {
         client.connected = true;
         client.loadCallbacks.forEach(function (v) {
-          if(typeof v === 'function') v();
+          if(typeof v === 'function') v(client);
         })
       }
     }
@@ -153,10 +153,6 @@
       module.exports = STool;
     }
   }
-
-
-
-
 
   //test functions
   var fn = function () {
@@ -181,5 +177,5 @@
   }
 
 
-  ready(fn);
+  //ready(fn);
 })(this,window);
