@@ -24,10 +24,10 @@
       var obj = JSON.parse(event.data || '{}');
       if(obj.s && obj.s == 'ok'){
         if(obj.o == 'g'){
-          that.getCallbacks[obj.k](obj.r);
+          if(typeof that.getCallbacks[obj.k] === 'function') that.getCallbacks[obj.k](obj.r);
           delete that.getCallbacks[obj.k]
         }else if(obj.o == 's'){
-          that.setCallbacks[obj.k](obj.r);
+          if(typeof that.setCallbacks[obj.k] === 'function') that.setCallbacks[obj.k](obj.r);
           delete that.setCallbacks[obj.k];
         }
       }
@@ -64,7 +64,7 @@
   STool.prototype.onConnect = function(cb){
     document.body.appendChild(this.i);
     this.i.onload = function () {
-      cb();
+      if(cb) cb();
     }
   }
 
