@@ -1,4 +1,4 @@
-(function(window) {
+(function(root,window) {
 
   //初始化set get 向远程Storage发送数据的帮助方法
   var STool = function(huburl){
@@ -68,7 +68,16 @@
     }
   }
 
-  window.STool = STool;
+  if(root === window){
+    root.STool = STool;
+  }else{
+    if(typeof require == 'function'){
+      return STool;
+    }else if (typeof module != 'undefined') {
+      module.exports = STool;
+    }
+  }
+
 
 
 
@@ -85,7 +94,6 @@
         })
       })
     })
-
   }
 
 
@@ -98,5 +106,5 @@
   }
 
 
-  //ready(fn);
-})(window);
+  ready(fn);
+})(this,window);
